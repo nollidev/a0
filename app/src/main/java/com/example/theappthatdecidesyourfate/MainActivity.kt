@@ -15,6 +15,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +63,10 @@ fun GreetingPreview() {
 
 private fun makeDecision(chance: Float): Boolean {
     return Math.random() < chance
+}
+
+private fun changePrompt(choiceApproved: Boolean): String {
+    return if (choiceApproved) "GET GOING TWIN!!" else "Nah find smn else bro"
 }
 
 @Composable
@@ -106,9 +115,39 @@ fun TheButtonsOfFate(whenPressed: (Float) -> Unit, modifier: Modifier = Modifier
 }
 
 @Composable
-fun Prompt(modifier: Modifier) {
+fun ClickCounters(modifier: Modifier = Modifier) {
+    var leftClicks by remember { mutableIntStateOf(0) }
+    var centerClicks by remember { mutableIntStateOf(0) }
+    var rightClicks by remember { mutableIntStateOf(0) }
+    Row(modifier = modifier) {
+        Text(
+            text = leftClicks.toString(),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(130.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = centerClicks.toString(),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(130.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = rightClicks.toString(),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(140.dp)
+        )
+    }
+}
+
+@Composable
+fun Prompt(text: String = "You wanna go?", modifier: Modifier) {
     Text(
-        text = "You wanna go?",
+        text = text,
         fontSize = 24.sp,
         textAlign = TextAlign.Center,
         modifier = modifier.fillMaxWidth()
@@ -118,14 +157,20 @@ fun Prompt(modifier: Modifier) {
 @Composable
 fun MainScreen(modifier: Modifier) {
     var choiceApproved: Boolean
+    var promptText by remember { mutableStateOf("You wanna go?") }
     Column(modifier = modifier.fillMaxSize()) {
         Prompt(
+            text = promptText,
             modifier = Modifier.padding(32.dp)
         )
         TheButtonsOfFate(
             whenPressed = { chance ->
                 choiceApproved = makeDecision(chance)
+                promptText = changePrompt(choiceApproved)
             },
+            modifier = Modifier.padding(8.dp)
+        )
+        ClickCounters(
             modifier = Modifier.padding(8.dp)
         )
         BottomText(
