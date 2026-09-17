@@ -4,12 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -20,7 +22,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -73,7 +77,7 @@ private fun changePrompt(choiceApproved: Boolean): String {
 fun BottomText(name: String, studentID: String, ccid: String, modifier: Modifier) {
     Column(modifier = modifier) {
         Text(
-            text = "Credits to : $name",
+            text = "Author : $name",
             modifier = Modifier.padding(2.dp)
         )
         Text(
@@ -156,12 +160,36 @@ fun Prompt(text: String = "You wanna go?", modifier: Modifier) {
 }
 
 @Composable
+fun ReactionImage(decision: Boolean = true, modifier: Modifier) {
+    val imageRes = R.drawable.cat_thumbs_up
+    if (imageRes == null) {
+        Text(
+            text = "",
+            modifier = modifier.size(300.dp)
+        )
+    }
+    else {
+        Image(
+            painter = painterResource(id = imageRes),
+            contentDescription = null,
+            modifier = modifier.size(300.dp)
+        )
+    }
+}
+
+@Composable
 fun MainScreen(modifier: Modifier) {
     var promptText by remember { mutableStateOf("You wanna go?") }
     var leftClicks by remember { mutableIntStateOf(0) }
     var centerClicks by remember { mutableIntStateOf(0) }
     var rightClicks by remember { mutableIntStateOf(0) }
     Column(modifier = modifier.fillMaxSize()) {
+        ReactionImage(
+            decision = true,
+            modifier = Modifier
+                .padding(8.dp)
+                .align(Alignment.CenterHorizontally)
+        )
         Prompt(
             text = promptText,
             modifier = Modifier.padding(32.dp)
