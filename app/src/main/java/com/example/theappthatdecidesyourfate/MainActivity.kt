@@ -89,7 +89,6 @@ fun BottomText(name: String, studentID: String, ccid: String, modifier: Modifier
 
 @Composable
 fun TheButtonsOfFate(whenPressed: (Float) -> Unit, modifier: Modifier = Modifier) {
-    var choiceApproved: Boolean
     Row(modifier = modifier) {
         Button(
             onClick = { whenPressed(0.5f) },
@@ -115,10 +114,12 @@ fun TheButtonsOfFate(whenPressed: (Float) -> Unit, modifier: Modifier = Modifier
 }
 
 @Composable
-fun ClickCounters(modifier: Modifier = Modifier) {
-    var leftClicks by remember { mutableIntStateOf(0) }
-    var centerClicks by remember { mutableIntStateOf(0) }
-    var rightClicks by remember { mutableIntStateOf(0) }
+fun ClickCounters(
+    leftClicks: Int,
+    centerClicks: Int,
+    rightClicks: Int,
+    modifier: Modifier = Modifier
+)   {
     Row(modifier = modifier) {
         Text(
             text = leftClicks.toString(),
@@ -156,8 +157,10 @@ fun Prompt(text: String = "You wanna go?", modifier: Modifier) {
 
 @Composable
 fun MainScreen(modifier: Modifier) {
-    var choiceApproved: Boolean
     var promptText by remember { mutableStateOf("You wanna go?") }
+    var leftClicks by remember { mutableIntStateOf(0) }
+    var centerClicks by remember { mutableIntStateOf(0) }
+    var rightClicks by remember { mutableIntStateOf(0) }
     Column(modifier = modifier.fillMaxSize()) {
         Prompt(
             text = promptText,
@@ -165,12 +168,20 @@ fun MainScreen(modifier: Modifier) {
         )
         TheButtonsOfFate(
             whenPressed = { chance ->
-                choiceApproved = makeDecision(chance)
+                val choiceApproved = makeDecision(chance)
                 promptText = changePrompt(choiceApproved)
+                when (chance) {
+                    0.5f -> leftClicks++
+                    0.25f -> centerClicks++
+                    0.1f -> rightClicks++
+                }
             },
             modifier = Modifier.padding(8.dp)
         )
         ClickCounters(
+            leftClicks = leftClicks,
+            centerClicks = centerClicks,
+            rightClicks = rightClicks,
             modifier = Modifier.padding(8.dp)
         )
         BottomText(
