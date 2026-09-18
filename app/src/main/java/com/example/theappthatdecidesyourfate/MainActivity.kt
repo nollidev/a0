@@ -1,5 +1,6 @@
 package com.example.theappthatdecidesyourfate
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -210,6 +212,8 @@ fun MainScreen(modifier: Modifier) {
     var rightClicks by remember { mutableIntStateOf(0) }
     var timeTrigger by remember { mutableIntStateOf(0) }
 
+    val context = LocalContext.current
+
     LaunchedEffect(timeTrigger) {
         if (promptText != "You wanna go?") {
             delay(duration = 3000.milliseconds)
@@ -241,6 +245,13 @@ fun MainScreen(modifier: Modifier) {
                     0.1f -> rightClicks++
                 }
                 timeTrigger++
+
+                val soundRes = if (choiceApproved) {
+                    R.raw.extremely_loud_correct_buzzer
+                } else { R.raw.loud_incorrect_buzzer }
+                val mediaPlayer = MediaPlayer.create(context, soundRes)
+                mediaPlayer.start()
+                mediaPlayer.setOnCompletionListener { it.release() }
             },
             modifier = Modifier.padding(8.dp)
         )
