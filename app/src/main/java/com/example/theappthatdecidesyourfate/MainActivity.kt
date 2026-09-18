@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.theappthatdecidesyourfate.ui.theme.TheAppThatDecidesYourFateTheme
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,12 +68,27 @@ fun GreetingPreview() {
 
 /* --- New code starts here --- */
 
+private const val half = "WELL GET GOING TWIN!!"
+private const val halfNot = "NAH GET LOST LOL"
+private const val quarter = "Sure why not"
+private const val quarterNot = "Nah find smn else bro"
+private const val tenth = "TOO BAD LMAO"
+private const val tenthNot = "Why are you even asking?"
+
 private fun makeDecision(chance: Float): Boolean {
     return Math.random() < chance
 }
 
-private fun changePrompt(choiceApproved: Boolean): String {
-    return if (choiceApproved) "GET GOING TWIN!!" else "Nah find smn else bro"
+private fun changePrompt(choiceApproved: Boolean, chance: Float): String {
+    return when (chance) {
+        0.5f if choiceApproved -> half
+        0.5f if !choiceApproved -> halfNot
+        0.25f if choiceApproved -> quarter
+        0.25f if !choiceApproved -> quarterNot
+        0.1f if choiceApproved -> tenth
+        0.1f if !choiceApproved -> tenthNot
+        else -> "You wanna go?"
+    }
 }
 
 @Composable
@@ -160,11 +178,18 @@ fun Prompt(text: String = "You wanna go?", modifier: Modifier) {
 }
 
 @Composable
-fun ReactionImage(decision: Boolean = true, modifier: Modifier) {
-    val imageRes = R.drawable.cat_thumbs_up
-    if (imageRes == null) {
-        Text(
-            text = "",
+fun ReactionImage(prompt: String, modifier: Modifier) {
+    val imageRes = when (prompt) {
+        half -> R.drawable.yes
+        halfNot -> R.drawable.cat_laughing_at_you
+        quarter -> R.drawable.cat_thumbs_up
+        quarterNot -> R.drawable.shrug
+        tenth -> R.drawable.cat_laughing_at_you
+        tenthNot -> R.drawable.wrongemoji
+        else -> -1
+    }
+    if (imageRes == -1) {
+        Spacer(
             modifier = modifier.size(300.dp)
         )
     }
@@ -183,9 +208,18 @@ fun MainScreen(modifier: Modifier) {
     var leftClicks by remember { mutableIntStateOf(0) }
     var centerClicks by remember { mutableIntStateOf(0) }
     var rightClicks by remember { mutableIntStateOf(0) }
+    var timeTrigger by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(timeTrigger) {
+        if (promptText != "You wanna go?") {
+            delay(duration = 3000.milliseconds)
+            promptText = "You wanna go?"
+        }
+    }
+
     Column(modifier = modifier.fillMaxSize()) {
         ReactionImage(
-            decision = true,
+            prompt = promptText,
             modifier = Modifier
                 .padding(8.dp)
                 .align(Alignment.CenterHorizontally)
@@ -197,12 +231,16 @@ fun MainScreen(modifier: Modifier) {
         TheButtonsOfFate(
             whenPressed = { chance ->
                 val choiceApproved = makeDecision(chance)
-                promptText = changePrompt(choiceApproved)
+                promptText = changePrompt(
+                    choiceApproved = choiceApproved,
+                    chance = chance
+                )
                 when (chance) {
                     0.5f -> leftClicks++
                     0.25f -> centerClicks++
                     0.1f -> rightClicks++
                 }
+                timeTrigger++
             },
             modifier = Modifier.padding(8.dp)
         )
