@@ -1,4 +1,5 @@
 CMPUT 301 Assignment 0 - An Android app that makes a decision for you.
+
 Copyright (C) 2026 Nathaniel Edillon
 
 This program is free software: you can redistribute it and/or modify
